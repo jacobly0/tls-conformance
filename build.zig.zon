@@ -1,0 +1,15 @@
+.{
+    .name = "tls-conformance",
+    .version = "0.0.0",
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "tester.zig",
+    },
+    .dependencies = .{
+        .libressl = .{
+            .hash = "12201f5cc06c88f191696106723797449baacb6ea38b07b6cf31c18c0382a6bea33e",
+            .url = "git+https://github.com/allyourcodebase/libressl#3.9.2+1",
+        },
+    },
+}
