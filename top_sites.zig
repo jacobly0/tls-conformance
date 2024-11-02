@@ -31,15 +31,10 @@ pub fn main() !void {
             .allocate = .alloc_always,
         });
         const result: std.http.Client.FetchResult =
-            if (std.mem.eql(u8, site.rootDomain, "linkedin.com") or
-            std.mem.eql(u8, site.rootDomain, "correios.com.br") or
-            std.mem.eql(u8, site.rootDomain, "adobe.com") or
+            if (std.mem.eql(u8, site.rootDomain, "adobe.com") or
             std.mem.eql(u8, site.rootDomain, "washingtonpost.com") or
-            std.mem.eql(u8, site.rootDomain, "marca.com") or
             std.mem.eql(u8, site.rootDomain, "disney.com") or
             std.mem.eql(u8, site.rootDomain, "outlook.com") or
-            std.mem.eql(u8, site.rootDomain, "elmundo.es") or
-            std.mem.eql(u8, site.rootDomain, "usgs.gov") or
             std.mem.eql(u8, site.rootDomain, "businesswire.com"))
             .{ .status = .request_timeout }
         else
