@@ -17,6 +17,7 @@ pub fn main() !void {
     var header_buf: [1 << 18]u8 = undefined;
     var req = try client.open(.GET, uri, .{
         .keep_alive = false,
+        .redirect_behavior = @enumFromInt(5),
         .server_header_buffer = &header_buf,
     });
     defer req.deinit();

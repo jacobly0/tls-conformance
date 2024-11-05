@@ -30,28 +30,34 @@ pub fn main() !void {
             .max_value_len = 1 << 5,
             .allocate = .alloc_always,
         });
+        if (std.mem.endsWith(u8, site.rootDomain, "..."))
+            @memcpy(site.rootDomain[site.rootDomain.len - "...".len ..], "com");
         const result: std.http.Client.FetchResult =
             if (std.mem.eql(u8, site.rootDomain, "adobe.com") or
             std.mem.eql(u8, site.rootDomain, "washingtonpost.com") or
             std.mem.eql(u8, site.rootDomain, "disney.com") or
-            std.mem.eql(u8, site.rootDomain, "outlook.com") or
+            std.mem.eql(u8, site.rootDomain, "usnews.com") or
             std.mem.eql(u8, site.rootDomain, "businesswire.com"))
             .{ .status = .request_timeout }
         else
             site_client.fetch(.{
                 .server_header_buffer = &headers_buf,
+                .redirect_behavior = @enumFromInt(5),
                 .location = .{ .uri = .{
                     .scheme = "https",
                     .host = .{ .raw = site.rootDomain },
                     .path = .{ .raw = "/" },
                 } },
             }) catch .{ .status = .bad_request };
-        stdout.print("\x1B[{d}m{s}\x1B[m\n", .{
-            @as(u6, if (result.status == .ok) 32 else 31),
-            site.rootDomain,
-        }) catch {};
-        if (result.status == .ok) total_succeeded += 1;
+        const success = result.status == .ok or
+            // sometimes path / doesn't exist
+            result.status == .not_found or
+            // sometimes path / is not accessible
+            result.status == .forbidden;
+        stdout.print("\x1B[{d}m{s}\x1B[m\n", .{ @as(u6, if (success) 32 else 31), site.rootDomain }) catch {};
+        if (success) total_succeeded += 1;
         total += 1;
+        std.time.sleep(10 * std.time.ns_per_ms);
     }
     if (try top_sites_reader.next() != .array_end or
         try top_sites_reader.next() != .end_of_document) return error.InvalidFormat;
@@ -59,7 +65,7 @@ pub fn main() !void {
 }
 const Site = struct {
     rank: u32,
-    rootDomain: []const u8,
+    rootDomain: []u8,
     linkingRootDomains: u32,
     domainAuthority: u8,
 };
