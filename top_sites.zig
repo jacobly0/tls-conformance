@@ -48,12 +48,14 @@ pub fn main() !void {
                     .host = .{ .raw = site.rootDomain },
                     .path = .{ .raw = "/" },
                 } },
-            }) catch .{ .status = .bad_request };
+            }) catch .{ .status = .internal_server_error };
         const success = result.status == .ok or
             // sometimes path / doesn't exist
             result.status == .not_found or
             // sometimes path / is not accessible
-            result.status == .forbidden;
+            result.status == .forbidden or
+            // its just GET /, bro
+            result.status == .bad_request;
         stdout.print("\x1B[{d}m{s}\x1B[m\n", .{ @as(u6, if (success) 32 else 31), site.rootDomain }) catch {};
         if (success) total_succeeded += 1;
         total += 1;
